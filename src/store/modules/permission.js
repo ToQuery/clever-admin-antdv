@@ -2,24 +2,17 @@ import { asyncRouterMap, constantRouterMap } from '@/config/router.config'
 import cloneDeep from 'lodash.clonedeep'
 
 /**
- * 过滤账户是否拥有某一个权限，并将菜单从加载列表移除
- *
- * @param permission
+ * Use meta.role to determine if the current user has permission
+ * @param roles
  * @param route
- * @returns {boolean}
+ * @param defaultValue 路由如果未配置的角色，则返回这个默认值
  */
-function hasPermission (permission, route) {
-  if (route.meta && route.meta.permission) {
-    let flag = false
-    for (let i = 0, len = permission.length; i < len; i++) {
-      flag = route.meta.permission.includes(permission[i])
-      if (flag) {
-        return true
-      }
-    }
-    return false
+function hasPermission (roles, route, defaultValue = true) {
+  if (route.meta && route.meta.roles) {
+    return roles.some(role => route.meta.roles.includes(role))
+  } else {
+    return defaultValue
   }
-  return true
 }
 
 /**
@@ -38,17 +31,26 @@ function hasRole(roles, route) {
   }
 }
 
-function filterAsyncRouter (routerMap, roles) {
-  const accessedRouters = routerMap.filter(route => {
-    if (hasPermission(roles.permissionList, route)) {
-      if (route.children && route.children.length) {
-        route.children = filterAsyncRouter(route.children, roles)
+/**
+ * Filter asynchronous routing tables by recursion
+ * @param routes asyncRoutes
+ * @param roles
+ * @param defaultValue 路由如果未配置的角色，则返回这个默认值
+ */
+export function filterAsyncRoutes (routes, roles, defaultValue = true) {
+  const res = []
+
+  routes.forEach(route => {
+    const tmp = { ...route }
+    if (hasPermission(roles, tmp, defaultValue)) {
+      if (tmp.children) {
+        tmp.children = filterAsyncRoutes(tmp.children, roles, defaultValue)
       }
-      return true
+      res.push(tmp)
     }
-    return false
   })
-  return accessedRouters
+
+  return res
 }
 
 const permission = {
@@ -63,11 +65,10 @@ const permission = {
     }
   },
   actions: {
-    GenerateRoutes ({ commit }, data) {
+    GenerateRoutes ({ commit }, codes) {
       return new Promise(resolve => {
-        const { roles } = data
         const routerMap = cloneDeep(asyncRouterMap)
-        const accessedRouters = filterAsyncRouter(routerMap, roles)
+        const accessedRouters = filterAsyncRoutes(routerMap, codes)
         commit('SET_ROUTERS', accessedRouters)
         resolve()
       })

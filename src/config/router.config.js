@@ -15,6 +15,40 @@ export const asyncRouterMap = [
     meta: { title: 'menu.home' },
     redirect: '/dashboard/workplace',
     children: [
+      // system
+      {
+        path: '/system',
+        name: 'system',
+        redirect: '/system/user',
+        component: RouteView,
+        meta: { title: 'menu.system', keepAlive: true, icon: 'setting', permission: ['dashboard'] },
+        children: [
+          {
+            path: '/system/menu',
+            name: 'SystemMenu',
+            component: () => import('@/views/system/menu'),
+            meta: { title: 'menu.system.menu', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/role',
+            name: 'SystemRole',
+            component: () => import('@/views/system/role'),
+            meta: { title: 'menu.system.role', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/user',
+            name: 'SystemUser',
+            component: () => import('@/views/system/user'),
+            meta: { title: 'menu.system.user', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/Log',
+            name: 'SystemLog',
+            component: () => import('@/views/system/log'),
+            meta: { title: 'menu.system.log', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
       // dashboard
       {
         path: '/dashboard',
