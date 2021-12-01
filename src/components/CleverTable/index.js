@@ -20,6 +20,11 @@ export default {
       type: [String, Function],
       default: 'key'
     },
+    loading: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
     data: {
       type: Function,
       required: true
@@ -78,6 +83,9 @@ export default {
     }
   }),
   watch: {
+    'loading' (val) {
+      this.localLoading = val
+    },
     'localPagination.current' (val) {
       this.pageURI && this.$router.push({
         ...this.$route,
@@ -138,7 +146,6 @@ export default {
      */
     loadData (pagination, filters, sorter) {
       this.localLoading = true
-      debugger
       const parameter = Object.assign(
         {
           current: (pagination && pagination.current) || this.showPagination && this.localPagination.current || this.pageNum,
@@ -156,7 +163,7 @@ export default {
           const { content, page } = response
           this.localPagination = this.showPagination && Object.assign({}, this.localPagination, {
             current: page.current, // 返回结果中的当前分页数
-            total: page.totalElements, // 返回结果中的总记录数
+            total: parseInt(page.totalElements, 10), // 返回结果中的总记录数
             showSizeChanger: this.showSizeChanger,
             pageSize: (pagination && pagination.pageSize) ||
               this.localPagination.pageSize

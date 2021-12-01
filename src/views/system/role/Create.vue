@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    title="新建用户"
+    title="新建角色"
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
@@ -20,18 +20,36 @@
             ]"
           ></a-input>
         </a-form-item>
+        <a-form-item label="菜单权限">
+          <a-tree
+            :showLine="true"
+            :checkable="true"
+            :selectable="false"
+            :checkStrictly="true"
+            :defaultExpandedKeys="['0']"
+            :tree-data="menuTreeData"
+            :replaceFields="{children:'children', title:'menuName', key:'id' }"
+            @check="onCheck"
+            v-decorator="[
+              'menuIds',
+              {rules: [{ required: true, message: '请选择菜单权限' }], valuePropName: 'checkedKeys' }
+            ]"
+          />
+        </a-form-item>
       </a-form>
     </a-spin>
   </a-modal>
 </template>
 
 <script>
-import { systemRoleSave } from '@/api/clever-framework'
+import { systemMenuTree, systemRoleSave } from '@/api/clever-framework'
+import { Tree as ATree } from 'ant-design-vue'
 
 export default {
   name: 'SystemUserCreate',
   props: {
   },
+  components: { ATree },
   data () {
     return {
       labelCol: {
@@ -44,12 +62,22 @@ export default {
       },
       loading: false,
       visible: false,
+      menuTreeData: [],
       form: this.$form.createForm(this)
     }
   },
   mounted () {
+    this.loadMenuTree()
   },
   methods: {
+    loadMenuTree () {
+      systemMenuTree().then(response => {
+        this.menuTreeData = response.content
+      })
+    },
+    onCheck (checkedKeys) {
+      this.form.setFieldsValue({ menuIds: checkedKeys.checked })
+    },
     show () {
       this.visible = true
     },

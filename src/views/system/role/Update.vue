@@ -26,17 +26,35 @@
             ]"
           ></a-input>
         </a-form-item>
+        <a-form-item label="菜单权限">
+          <a-tree
+            :showLine="true"
+            :checkable="true"
+            :selectable="false"
+            :checkStrictly="true"
+            :defaultExpandedKeys="['0']"
+            :tree-data="menuTreeData"
+            :replaceFields="{children:'children', title:'menuName', key:'id' }"
+            @check="onCheck"
+            v-decorator="[
+              'menuIds',
+              {rules: [{ required: true, message: '请选择菜单权限' }], valuePropName: 'checkedKeys' }
+            ]"
+          />
+        </a-form-item>
       </a-form>
     </a-spin>
   </a-modal>
 </template>
 
 <script>
-import { systemRoleDetail, systemRoleUpdate } from '@/api/clever-framework'
+import { systemMenuTree, systemRoleDetail, systemRoleUpdate } from '@/api/clever-framework'
+import { Tree as ATree } from 'ant-design-vue'
+
 import pick from 'lodash.pick'
 
 // 表单字段
-const fields = ['id', 'roleName']
+const fields = ['id', 'roleName', 'menuIds']
 
 export default {
   name: 'SystemRoleUpdate',
@@ -47,8 +65,10 @@ export default {
       default: null
     }
   },
+  components: { ATree },
   data () {
     return {
+      menuTreeData: [],
       labelCol: {
         xs: { span: 24 },
         sm: { span: 5 }
@@ -70,8 +90,17 @@ export default {
     }
   },
   mounted () {
+    this.loadMenuTree()
   },
   methods: {
+    loadMenuTree () {
+      systemMenuTree().then(response => {
+        this.menuTreeData = response.content
+      })
+    },
+    onCheck (checkedKeys) {
+      this.form.setFieldsValue({ menuIds: checkedKeys.checked })
+    },
     show () {
       this.visible = true
       if (this.record && this.record.id) {

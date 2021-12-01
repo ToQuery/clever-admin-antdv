@@ -36,6 +36,7 @@
         ref="table"
         size="default"
         rowKey="id"
+        :loading="loading"
         :columns="columns"
         :data="loadData"
         :alert="true"
@@ -152,7 +153,7 @@ export default {
     },
     handleDelete (record) {
       this.currentRow = { ...record }
-      this.loading = true
+      // this.loading = true
       systemRoleDelete(record.id).then(response => {
         this.selectedRowKeys = []
         this.selectedRows = []
@@ -162,10 +163,11 @@ export default {
       }).catch(error => {
         this.$message.error(error.message || '删除失败')
       }).finally(() => {
-        this.loading = false
+        // this.loading = false
       })
     },
     handleDeletes () {
+      this.loading = true
       systemRoleDelete(this.selectedRowKeys.join(',')).then(response => {
         this.selectedRowKeys = []
         this.selectedRows = []
@@ -174,6 +176,8 @@ export default {
         this.$refs.table.refresh()
       }).catch(error => {
         this.$message.error(error.message || '删除失败')
+      }).finally(() => {
+        this.loading = false
       })
     },
     onSelectChange (selectedRowKeys, selectedRows) {

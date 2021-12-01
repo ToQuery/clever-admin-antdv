@@ -94,8 +94,11 @@ export default {
       this.$emit('cancel')
     },
     loadMenuTree () {
+      this.loading = true
       systemMenuTree().then(response => {
         this.menuTreeData = response.content
+      }).finally(() => {
+        this.loading = false
       })
     },
     handleSubmit () {

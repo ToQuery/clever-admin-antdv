@@ -35,5 +35,12 @@ export default {
     'menu.account.center': '个人中心',
     'menu.account.settings': '个人设置',
     'menu.account.trigger': '触发报错',
-    'menu.account.logout': '退出登录'
+    'menu.account.logout': '退出登录',
+    'menu.system': '系统管理',
+    'menu.system.menu': '菜单管理',
+    'menu.system.role': '角色管理',
+    'menu.system.user': '用户管理',
+    'menu.system.log': '日志管理',
+
+    'menu.core': '系统管理'
 }
